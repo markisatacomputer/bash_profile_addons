@@ -12,7 +12,7 @@ COMMAND=$1
 shift
 
 #  Parse OPTIONS
-while getopts "u:s:e:d:h" opt
+while getopts "u:s:e:d:p:h" opt
 do
   case "${opt}"
   in
@@ -20,8 +20,9 @@ do
     s) PANTHEON_SITE=$OPTARG;;
     e) PANTHEON_ENV=$OPTARG;;
     d) DRUPAL_USER=$OPTARG;;
+    p) DRUSH_PATH=$OPTARG;;
     h)
-      echo "Usage: $COMMAND [-h] [-u] [-s] [-e] [-d]"
+      echo "Usage: $COMMAND [-h] [-u] [-s] [-e] [-d] [-p]"
       exit 0
       ;;
     :)
@@ -46,16 +47,21 @@ if [ -n $PANTHEON_ENV ]; then
   fi
 fi
 
+#  Set DRUSH_PATH
+if [ -n $DRUSH_PATH ]; then
+  DRUSH_PATH="drush"
+fi
+
 #  Execute
 case "$COMMAND" in
   prush)
-    drush $DRUSH_ADDR.$PANTHEON_ENV "$@"
+    $DRUSH_PATH $DRUSH_ADDR.$PANTHEON_ENV "$@"
     ;;
   plogin)
-    drush $DRUSH_ADDR.$PANTHEON_ENV user-login $DRUPAL_USER --no-browser "$@"
+    $DRUSH_PATH $DRUSH_ADDR.$PANTHEON_ENV user-login $DRUPAL_USER --no-browser "$@"
     ;;
   psql)
-    SQLC=$(drush $DRUSH_ADDR.$PANTHEON_ENV sql-connect --extra="-A --table -e")
+    SQLC=$($DRUSH_PATH $DRUSH_ADDR.$PANTHEON_ENV sql-connect --extra="-A --table -e")
     echo "Running query on $DRUSH_ADDR.$PANTHEON_ENV"
     $SQLC "$@"
     ;;
