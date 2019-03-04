@@ -36,9 +36,8 @@ shift $((OPTIND -1))
 
 DRUSH_ADDR="@$PANTHEON_USER.$PANTHEON_SITE"
 
-
 #  Set PANTHEON_ENV
-if [ -n $PANTHEON_ENV ]; then
+if [ -z $PANTHEON_ENV ]; then
   if [ ! -z "$2" ]; then
     PANTHEON_ENV="$1"
     shift
