@@ -1,5 +1,5 @@
 #
-alias pa='terminus aliases --location=~/.drush/$PANTHEON_USER.aliases.drushrc.php'
+alias pa='~/.bash_scripts/pantheon/pantheon-drush-tools.sh pa $@'
 alias prush="~/.bash_scripts/pantheon/pantheon-drush-tools.sh prush $@"
 alias plogin="~/.bash_scripts/pantheon/pantheon-drush-tools.sh plogin $@"
 alias psql="~/.bash_scripts/pantheon/pantheon-drush-tools.sh psql $@"

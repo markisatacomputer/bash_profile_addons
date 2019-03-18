@@ -33,7 +33,12 @@ do
 done
 shift $((OPTIND -1))
 
+#  Set PANTHEON_USER
+if [ -z $PANTHEON_USER ]; then
+  PANTHEON_USER="$(terminus whoami)"
+fi
 
+#  Set DRUSH_ADDR
 DRUSH_ADDR="@$PANTHEON_USER.$PANTHEON_SITE"
 
 #  Set PANTHEON_ENV
@@ -53,6 +58,9 @@ fi
 
 #  Execute
 case "$COMMAND" in
+  pa)
+    terminus aliases --location=~/.drush/$PANTHEON_USER.aliases.drushrc.php
+    ;;
   prush)
     $DRUSH_PATH $DRUSH_ADDR.$PANTHEON_ENV "$@"
     ;;
