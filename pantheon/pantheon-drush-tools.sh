@@ -35,7 +35,12 @@ shift $((OPTIND -1))
 
 #  Set PANTHEON_USER
 if [ -z $PANTHEON_USER ]; then
-  PANTHEON_USER="$(terminus whoami)"
+  export PANTHEON_USER="$(terminus whoami)"
+fi
+
+#  Set PANTHEON_SITE (default to first in list)
+if [ -z $PANTHEON_SITE ]; then
+  export PANTHEON_SITE="$(terminus site:list --field=Name | head -n 1)"
 fi
 
 #  Set DRUSH_ADDR
