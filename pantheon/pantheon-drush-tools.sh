@@ -43,38 +43,41 @@ if [ -z $PANTHEON_SITE ]; then
   export PANTHEON_SITE="$(terminus site:list --field=Name | head -n 1)"
 fi
 
-#  Set DRUSH_ADDR
-DRUSH_ADDR="@$PANTHEON_USER.$PANTHEON_SITE"
-
 #  Set PANTHEON_ENV
 if [ -z $PANTHEON_ENV ]; then
   if [ ! -z "$2" ]; then
     PANTHEON_ENV="$1"
     shift
   else
-    PANTHEON_ENV="test"
+    PANTHEON_ENV=$(git rev-parse --abbrev-ref HEAD)
   fi
 fi
 
 #  Set DRUSH_PATH
 if [ -n $DRUSH_PATH ]; then
-  DRUSH_PATH="drush"
+  DRUSH_PATH="~/.composer/vendor/bin/drush"
 fi
+
+#  Set ADDRs
+TERMINUS_ADDR="$PANTHEON_SITE.$PANTHEON_ENV"
+DRUSH_ADDR="@$TERMINUS_ADDR"
 
 #  Execute
 case "$COMMAND" in
   pa)
-    terminus aliases --location=~/.drush/$PANTHEON_USER.aliases.drushrc.php
+    terminus aliases
     ;;
   prush)
-    $DRUSH_PATH $DRUSH_ADDR.$PANTHEON_ENV "$@"
+    drush $DRUSH_ADDR "$@"
     ;;
   plogin)
-    $DRUSH_PATH $DRUSH_ADDR.$PANTHEON_ENV user-login $DRUPAL_USER --no-browser "$@"
+    drush $DRUSH_ADDR user-login --no-browser $DRUPAL_USER "$@"
     ;;
   psql)
-    SQLC=$($DRUSH_PATH $DRUSH_ADDR.$PANTHEON_ENV sql-connect --extra="-A --table -e")
-    echo "Running query on $DRUSH_ADDR.$PANTHEON_ENV"
+    SQLC=$(drush $DRUSH_ADDR sql-connect --extra="-A --table -e")
+    PUSER=$(drush sa $DRUSH_ADDR --format=csv --fields=remote-user --field-labels=0)
+    SQLC=$(echo $SQLC | sed -E "s/--host=[^\s ]+/--host=dbserver.$PUSER.drush.in/")
+    echo $SQLC "'"$@"'"
     $SQLC "$@"
     ;;
 esac
